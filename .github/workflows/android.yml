@@ -93,7 +93,10 @@ jobs:
           cp app/build/outputs/apk/release/app-release.apk MHOP-1.1.0-release.apk
           ls -l MHOP-1.1.0-release.apk
           unzip -l MHOP-1.1.0-release.apk | grep -E 'classes.dex|AndroidManifest.xml|resources.arsc'
-          (apksigner verify --verbose --print-certs MHOP-1.1.0-release.apk 2>&1 || true) | head -20
+          # setup-android 不把 build-tools 挂到 PATH，用全路径；验证不过则 step 红
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs MHOP-1.1.0-release.apk > /tmp/apk-verify.txt
+          cat /tmp/apk-verify.txt | head -20
+          grep -q 'Verified using v2 scheme (APK Signature Scheme v2): true' /tmp/apk-verify.txt
 
       - uses: actions/upload-artifact@v4
         with:
